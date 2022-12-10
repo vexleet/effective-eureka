@@ -1,47 +1,53 @@
-const keysFunctions = new Map<string, Set<Function>>()
+const keysFunctions = new WeakMap<object, Map<string, Set<Function>>>()
 
-// export function ref(value: number) {
-//
-// }
+let activeEffect: Function | null;
 
-let effect: Function;
-
-export function track(key: string) {
-  if(!keysFunctions.has(key)) {
-    keysFunctions.set(key, new Set())
+function track(target: object, key: string) {
+  if(!keysFunctions.has(target)) {
+    const newMap = new Map()
+    newMap.set(key, new Set())
+    keysFunctions.set(target, newMap)
   }
 
-  const keyTriggers = keysFunctions.get(key)!
-  keyTriggers.add(effect)
-
-  keysFunctions.set(key, keyTriggers)
+  if(activeEffect) {
+    const currentSet = keysFunctions.get(target)!.get(key)!
+    currentSet.add(activeEffect)
+  }
 }
 
-export function trigger(key: string) {
-  if(keysFunctions.has(key)) {
-    for (const myTrigger of keysFunctions.get(key)!.values()) {
+function trigger(target: object, key: string) {
+  if(keysFunctions.get(target)!.has(key)) {
+    for (const myTrigger of keysFunctions.get(target)!.get(key)!.values()) {
       myTrigger()
     }
   }
 }
 
-export function helloWorld() {
-  let num1 = 2
-  let num2 = 3
-  let sum = num1 + num2
-
-  effect = () => {
-    sum = num1 + num2
+export function ref<T>(value: T) {
+  const refObject = {
+    get value() {
+      track(refObject, 'value')
+      return value
+    },
+    set value(newValue) {
+      value = newValue
+      trigger(refObject, 'value')
+    }
   }
 
-  track('num1')
-
-  num1 = 3
-  console.log(sum);
-
-  trigger('num1')
-
-  console.log(sum);
-
+  return refObject
 }
+
+export function computed<T>(effect: () => T) {
+
+  activeEffect = effect
+  activeEffect()
+  activeEffect = null
+
+  // TODO FIGURE THIS OUT WITHOUT THE NEED TO USE .value()
+  const save = ref(effect)
+
+  return save
+}
+
 
