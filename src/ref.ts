@@ -44,10 +44,11 @@ export function computed<T>(effect: () => T) {
   activeEffect()
   activeEffect = null
 
-  // TODO FIGURE THIS OUT WITHOUT THE NEED TO USE .value()
-  const save = ref(effect)
-
-  return save
+  return {
+    get value() {
+      return effect()
+    }
+  }
 }
 
 

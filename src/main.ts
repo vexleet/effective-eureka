@@ -1,20 +1,19 @@
 import './style.css'
 import {computed, ref} from './ref';
 
-let num1 = ref(2)
-let num2 = ref(3)
+const count = ref(0)
 
+const countEl = document.getElementById('count')!
+const countButtonEl = document.getElementById('count-button')!
 
-const sum = computed(() => num1.value + num2.value)
-const subtraction = computed(() => num1.value - num2.value)
+computed(() => {
+  countEl.innerHTML = count.value.toString()
+})
 
-num1.value = 10
+countButtonEl.addEventListener('click', () => {
+  count.value++
+})
 
-console.log(sum.value());
-console.log(subtraction.value());
-
-num1.value = 4
-num2.value = 4
-
-console.log(sum.value());
-console.log(subtraction.value());
+// setInterval(() => {
+//   count.value++
+// }, 1000)
