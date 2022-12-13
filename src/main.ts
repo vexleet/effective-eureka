@@ -1,5 +1,5 @@
 import './style.css'
-import {computed, ref} from './ref';
+import {computed, reactive, ref} from './ref';
 
 const count = ref(0)
 
@@ -13,6 +13,23 @@ computed(() => {
 countButtonEl.addEventListener('click', () => {
   count.value++
 })
+
+const person = reactive({
+  firstName: 'Kristian',
+  lastName: 'Malamov'
+})
+
+const myFullName = computed(() => person.firstName + ' ' + person.lastName)
+
+console.log(myFullName.value);
+
+person.firstName = 'vex'
+
+console.log(myFullName.value);
+
+person.lastName = 'LEET'
+
+console.log(myFullName.value);
 
 // setInterval(() => {
 //   count.value++
